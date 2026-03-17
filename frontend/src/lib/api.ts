@@ -36,6 +36,11 @@ export const executeQuery = (data: MCPQueryRequest) =>
     method: "POST",
     body: JSON.stringify(data),
   });
+export const mcpInvoke = (data: MCPInvokeRequest) =>
+  fetchAPI<MCPQueryResponse>("/mcp/invoke", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 
 // Autonomy APIs
 export const runAutonomyCycle = () =>
@@ -45,7 +50,8 @@ export const runAutonomyCycle = () =>
 export const getAutonomyLogs = () => fetchAPI<AutonomyLog[]>("/autonomy/logs");
 export const getDashboardMetrics = () => fetchAPI<DashboardMetrics>("/autonomy/dashboard");
 
-// Types
+// ─── Types ───────────────────────────────────────────────────────────────────
+
 export interface Provider {
   id: number;
   name: string;
@@ -84,33 +90,71 @@ export interface MCPTool {
   is_active: boolean;
 }
 
+export interface CostBreakdown {
+  base_cost: number;
+  complexity_multiplier: number;
+  volume_multiplier: number;
+  final_cost: number;
+  formula: string;
+}
+
+export interface RewardBreakdown {
+  provider_base_payout: number;
+  uptime_bonus: number;
+  quality_bonus: number;
+  total_provider_payout: number;
+  platform_fee: number;
+  formula: string;
+}
+
 export interface Transaction {
   id: number;
   provider_id: number;
   consumer_id: number;
   tool_name: string;
+  session_id: string | null;
+  base_cost: number;
+  complexity_multiplier: number;
+  volume_multiplier: number;
   cost: number;
+  provider_base_payout: number;
+  uptime_bonus: number;
+  quality_bonus: number;
   provider_payout: number;
   platform_fee: number;
   latency_ms: number;
   status: string;
+  routed_to_endpoint: string | null;
   created_at: string;
+}
+
+export interface MCPInvokeRequest {
+  tool_name: string;
+  consumer_id: number;
+  parameters: Record<string, unknown>;
+  session_id?: string;
 }
 
 export interface MCPQueryRequest {
   tool_name: string;
   consumer_id: number;
   parameters: Record<string, unknown>;
+  session_id?: string;
 }
 
 export interface MCPQueryResponse {
   tool_name: string;
   result: Record<string, unknown>;
   cost: number;
+  cost_breakdown: CostBreakdown;
+  reward_breakdown: RewardBreakdown;
   provider_payout: number;
   platform_fee: number;
   latency_ms: number;
+  routed_to: string;
+  session_id: string | null;
   phi_disclaimer: string;
+  privacy_badges: string[];
 }
 
 export interface PayoutSimRequest {
@@ -155,4 +199,27 @@ export interface DashboardMetrics {
   provider_payouts: number;
   avg_latency_ms: number;
   uptime_percent: number;
+}
+
+// WebSocket meter event types
+export interface MeterEvent {
+  type: "transaction" | "autonomy_update" | "connected" | "pong" | "error";
+  transaction_id?: number;
+  tool_name?: string;
+  consumer_id?: number;
+  consumer_name?: string;
+  provider_id?: number;
+  provider_name?: string;
+  cost_breakdown?: CostBreakdown;
+  reward_breakdown?: RewardBreakdown;
+  latency_ms?: number;
+  routed_to?: string;
+  result?: Record<string, unknown>;
+  timestamp?: string;
+  // For autonomy_update
+  actions?: AutonomyAction[];
+  // For connected/pong
+  active_connections?: number;
+  // For error
+  detail?: string;
 }

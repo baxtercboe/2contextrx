@@ -63,20 +63,56 @@ class MCPToolResponse(BaseModel):
         from_attributes = True
 
 
+class MCPInvokeRequest(BaseModel):
+    """MCP-format invoke request — the central proxy endpoint."""
+    tool_name: str
+    parameters: dict = {}
+    consumer_id: int
+    session_id: Optional[str] = None
+
+
 class MCPQueryRequest(BaseModel):
     tool_name: str
     consumer_id: int
     parameters: dict = {}
+    session_id: Optional[str] = None
+
+
+class CostBreakdown(BaseModel):
+    base_cost: float
+    complexity_multiplier: float
+    volume_multiplier: float
+    final_cost: float
+    formula: str  # human-readable formula string
+
+
+class RewardBreakdown(BaseModel):
+    provider_base_payout: float
+    uptime_bonus: float
+    quality_bonus: float
+    total_provider_payout: float
+    platform_fee: float
+    formula: str
 
 
 class MCPQueryResponse(BaseModel):
     tool_name: str
     result: dict
     cost: float
+    cost_breakdown: CostBreakdown
+    reward_breakdown: RewardBreakdown
     provider_payout: float
     platform_fee: float
     latency_ms: float
+    routed_to: str  # which provider endpoint handled this
+    session_id: Optional[str] = None
     phi_disclaimer: str = "No raw PHI was accessed or returned. All data is pre-aggregated."
+    privacy_badges: list[str] = [
+        "PHI never leaves provider",
+        "HIPAA-aligned design",
+        "k-anonymized (k>=50)",
+        "Aggregated data only",
+    ]
 
 
 class TransactionResponse(BaseModel):
@@ -84,15 +120,36 @@ class TransactionResponse(BaseModel):
     provider_id: int
     consumer_id: int
     tool_name: str
+    session_id: Optional[str] = None
+    base_cost: float
+    complexity_multiplier: float
+    volume_multiplier: float
     cost: float
+    provider_base_payout: float
+    uptime_bonus: float
+    quality_bonus: float
     provider_payout: float
     platform_fee: float
     latency_ms: float
     status: str
+    routed_to_endpoint: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class MeterEvent(BaseModel):
+    """Real-time meter event pushed over WebSocket."""
+    event_type: str  # "transaction", "cost_update", "provider_earning"
+    transaction_id: int
+    tool_name: str
+    consumer_id: int
+    provider_id: int
+    cost_breakdown: CostBreakdown
+    reward_breakdown: RewardBreakdown
+    latency_ms: float
+    timestamp: str
 
 
 class AutonomyLogResponse(BaseModel):

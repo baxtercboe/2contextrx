@@ -63,11 +63,24 @@ class Transaction(Base):
     provider_id = Column(Integer, ForeignKey("providers.id"), nullable=False)
     consumer_id = Column(Integer, ForeignKey("consumers.id"), nullable=False)
     tool_name = Column(String(255), nullable=False)
-    cost = Column(Float, nullable=False)
-    provider_payout = Column(Float, nullable=False)  # 70%
-    platform_fee = Column(Float, nullable=False)  # 30%
+    session_id = Column(String(128), nullable=True)
+
+    # Cost breakdown components
+    base_cost = Column(Float, nullable=False)  # base price_per_call
+    complexity_multiplier = Column(Float, default=1.0)  # 1.0–2.5x based on param complexity
+    volume_multiplier = Column(Float, default=1.0)  # discount tiers for high volume
+    cost = Column(Float, nullable=False)  # final consumer cost = base * complexity * volume
+
+    # Revenue split
+    provider_base_payout = Column(Float, nullable=False)  # cost * 0.70
+    uptime_bonus = Column(Float, default=0.0)
+    quality_bonus = Column(Float, default=0.0)
+    provider_payout = Column(Float, nullable=False)  # base_payout + bonuses
+    platform_fee = Column(Float, nullable=False)  # cost - provider_payout
+
     latency_ms = Column(Float, default=0.0)
     status = Column(String(50), default="completed")
+    routed_to_endpoint = Column(String(512), nullable=True)  # which provider endpoint was hit
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     provider = relationship("Provider", back_populates="transactions")
