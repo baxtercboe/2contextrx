@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Shield,
@@ -9,9 +13,38 @@ import {
   Globe,
   BarChart3,
   Bot,
+  Loader2,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [provLoading, setProvLoading] = useState(false);
+  const [consLoading, setConsLoading] = useState(false);
+
+  const handleBecomeProvider = async () => {
+    setProvLoading(true);
+    try {
+      const res = await fetch("/api/onboarding/quick-provider", { method: "POST" });
+      if (res.ok) {
+        router.push("/provider?onboarded=true");
+      }
+    } catch { /* ignore */ }
+    setProvLoading(false);
+  };
+
+  const handleStartExploring = async () => {
+    setConsLoading(true);
+    try {
+      const res = await fetch("/api/onboarding/quick-consumer", { method: "POST" });
+      if (res.ok) {
+        router.push("/consumer?onboarded=true");
+      }
+    } catch { /* ignore */ }
+    setConsLoading(false);
+  };
+
   return (
     <div className="relative">
       {/* Hero */}
@@ -41,16 +74,47 @@ export default function LandingPage() {
             <strong className="text-gray-200"> raw PHI never leaves provider environments</strong>.
           </p>
 
-          <div className="flex items-center justify-center gap-4">
-            <Link href="/provider" className="btn-primary text-base">
-              <Database className="h-5 w-5" />
-              Provider Portal
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/consumer" className="btn-secondary text-base">
-              <Zap className="h-5 w-5" />
-              Consumer Portal
-            </Link>
+          {/* One-click onboarding CTA */}
+          <div className="mx-auto max-w-lg space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={handleBecomeProvider}
+                disabled={provLoading}
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-brand-600 to-purple-600 p-[1px] transition-all hover:shadow-lg hover:shadow-brand-500/25"
+              >
+                <div className="flex flex-col items-center gap-2 rounded-[11px] bg-surface-50/90 px-6 py-5 transition-colors group-hover:bg-surface-50/70">
+                  {provLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-400" />
+                  ) : (
+                    <Database className="h-6 w-6 text-brand-400" />
+                  )}
+                  <span className="font-semibold text-sm">Become a Provider</span>
+                  <span className="text-xs text-gray-500">One-click setup</span>
+                </div>
+              </button>
+
+              <button
+                onClick={handleStartExploring}
+                disabled={consLoading}
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 p-[1px] transition-all hover:shadow-lg hover:shadow-purple-500/25"
+              >
+                <div className="flex flex-col items-center gap-2 rounded-[11px] bg-surface-50/90 px-6 py-5 transition-colors group-hover:bg-surface-50/70">
+                  {consLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
+                  ) : (
+                    <Zap className="h-6 w-6 text-purple-400" />
+                  )}
+                  <span className="font-semibold text-sm">Start Exploring</span>
+                  <span className="text-xs text-gray-500">Get API key instantly</span>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" />No signup required</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" />Instant demo data</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" />Full API access</span>
+            </div>
           </div>
         </div>
       </section>
@@ -67,24 +131,28 @@ export default function LandingPage() {
             {[
               {
                 icon: Database,
+                step: "01",
                 title: "Providers Expose Context",
                 desc: "Healthcare payers register MCP servers that expose pre-aggregated, k-anonymized data. No raw PHI ever leaves their environment.",
                 color: "from-blue-500 to-cyan-500",
               },
               {
                 icon: Globe,
+                step: "02",
                 title: "Central MCP Proxy Routes",
                 desc: "ContextRx proxies all requests, handling authentication, metering, and billing. Every tool call is tracked and priced transparently.",
                 color: "from-brand-500 to-purple-500",
               },
               {
                 icon: Zap,
+                step: "03",
                 title: "AI Apps Consume Context",
                 desc: "Consumer applications query aggregated healthcare insights via standard MCP tool calls. Pay only for what you use.",
                 color: "from-purple-500 to-pink-500",
               },
-            ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} className="glass-card p-8">
+            ].map(({ icon: Icon, step, title, desc, color }) => (
+              <div key={title} className="glass-card p-8 relative overflow-hidden">
+                <span className="absolute right-4 top-4 text-4xl font-black text-white/[0.03]">{step}</span>
                 <div
                   className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}
                 >
@@ -95,6 +163,17 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+
+          {/* Flow arrow visualization */}
+          <div className="mt-10 flex items-center justify-center gap-3 text-xs text-gray-500">
+            <span className="badge-green">Provider MCP Server</span>
+            <ArrowRight className="h-4 w-4" />
+            <span className="rounded-lg border border-brand-500/30 bg-brand-500/10 px-3 py-1.5 text-brand-300 font-semibold">
+              ContextRx Proxy
+            </span>
+            <ArrowRight className="h-4 w-4" />
+            <span className="badge-purple">Consumer AI App</span>
+          </div>
         </div>
       </section>
 
@@ -102,12 +181,13 @@ export default function LandingPage() {
       <section className="border-t border-white/[0.04] px-6 py-20">
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-4">
           {[
-            { label: "Revenue Split", value: "70/30", sub: "Provider / Platform" },
-            { label: "PHI Exposure", value: "Zero", sub: "Pre-aggregated only" },
-            { label: "Billing Model", value: "Per Call", sub: "Usage-based metering" },
-            { label: "Autonomy", value: "Full", sub: "AI-managed operations" },
-          ].map(({ label, value, sub }) => (
+            { label: "Revenue Split", value: "70/30", sub: "Provider / Platform", icon: BarChart3 },
+            { label: "PHI Exposure", value: "Zero", sub: "Pre-aggregated only", icon: Shield },
+            { label: "Billing Model", value: "Per Call", sub: "Usage-based metering", icon: Activity },
+            { label: "Autonomy", value: "Full", sub: "AI-managed operations", icon: Bot },
+          ].map(({ label, value, sub, icon: Icon }) => (
             <div key={label} className="stat-card text-center">
+              <Icon className="mx-auto mb-3 h-6 w-6 text-brand-400/60" />
               <p className="mb-1 text-3xl font-bold gradient-text">{value}</p>
               <p className="text-sm font-semibold text-gray-200">{label}</p>
               <p className="mt-1 text-xs text-gray-500">{sub}</p>
@@ -116,21 +196,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Key Features */}
+      {/* Platform Capabilities */}
       <section className="border-t border-white/[0.04] px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mb-12 text-center text-3xl font-bold">Platform Capabilities</h2>
+          <div className="flex items-center justify-center gap-2 mb-12">
+            <Sparkles className="h-5 w-5 text-brand-400" />
+            <h2 className="text-center text-3xl font-bold">Platform Capabilities</h2>
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: Lock, label: "Privacy First", desc: "K-anonymized, aggregated data only" },
-              { icon: BarChart3, label: "Real-time Metering", desc: "WebSocket-powered live billing" },
-              { icon: Activity, label: "Performance Bonuses", desc: "Uptime, quality, volume rewards" },
-              { icon: Bot, label: "Autonomy Agent", desc: "Self-managing marketplace ops" },
+              { icon: Lock, label: "Privacy First", desc: "K-anonymized, aggregated data only. No raw PHI ever crosses boundaries." },
+              { icon: BarChart3, label: "Real-time Metering", desc: "WebSocket-powered live billing. See cost breakdowns per query instantly." },
+              { icon: Activity, label: "Performance Bonuses", desc: "Uptime, quality, volume & freshness rewards on top of the 70% base." },
+              { icon: Bot, label: "Autonomy Agent", desc: "Self-managing marketplace: auto-onboards providers, adjusts pricing." },
             ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="glass-card p-6 text-center">
-                <Icon className="mx-auto mb-3 h-8 w-8 text-brand-400" />
-                <p className="font-semibold">{label}</p>
-                <p className="mt-1 text-xs text-gray-500">{desc}</p>
+              <div key={label} className="glass-card p-6">
+                <Icon className="mb-3 h-8 w-8 text-brand-400" />
+                <p className="font-semibold mb-2">{label}</p>
+                <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -147,12 +230,17 @@ export default function LandingPage() {
             Consumer Portal to run live queries against aggregated healthcare context.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link href="/autonomy" className="btn-primary">
-              <Bot className="h-5 w-5" />
-              Watch Autonomy Agent
+            <Link href="/provider" className="btn-primary">
+              <Database className="h-5 w-5" />
+              Provider Portal
             </Link>
             <Link href="/consumer" className="btn-secondary">
-              Run a Query
+              <Zap className="h-5 w-5" />
+              Consumer Portal
+            </Link>
+            <Link href="/autonomy" className="btn-secondary">
+              <Bot className="h-5 w-5" />
+              Autonomy Agent
             </Link>
           </div>
         </div>
@@ -161,7 +249,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-white/[0.04] px-6 py-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between text-xs text-gray-600">
-          <span>ContextRx v0.1.0 — Privacy-Preserved Healthcare Context Marketplace</span>
+          <span>ContextRx v0.2.0 — Privacy-Preserved Healthcare Context Marketplace</span>
           <span>No raw PHI is ever stored, transmitted, or returned by this platform.</span>
         </div>
       </footer>

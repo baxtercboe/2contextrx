@@ -60,6 +60,34 @@ def get_provider_transactions(provider_id: int, limit: int = 50, db: Session = D
     )
 
 
+@router.get("/{provider_id}/earnings-history")
+def get_earnings_history(provider_id: int, db: Session = Depends(get_db)):
+    """Get earnings over time for charting — grouped by transaction."""
+    txns = (
+        db.query(Transaction)
+        .filter(Transaction.provider_id == provider_id)
+        .order_by(Transaction.created_at.asc())
+        .all()
+    )
+    cumulative = 0.0
+    points = []
+    for i, txn in enumerate(txns):
+        cumulative += txn.provider_payout
+        points.append({
+            "index": i + 1,
+            "earning": round(txn.provider_payout, 4),
+            "cumulative": round(cumulative, 4),
+            "tool": txn.tool_name,
+            "timestamp": txn.created_at.isoformat() if txn.created_at else "",
+        })
+    return {
+        "provider_id": provider_id,
+        "total_earnings": round(cumulative, 4),
+        "transaction_count": len(points),
+        "data": points,
+    }
+
+
 @router.post("/simulate-payout", response_model=PayoutSimulation)
 def simulate_provider_payout(req: PayoutSimulationRequest):
     return simulate_payout(req)

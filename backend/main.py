@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.database import init_db, SessionLocal
-from app.routes import providers, consumers, mcp_proxy, autonomy
+from app.routes import providers, consumers, mcp_proxy, autonomy, onboarding
 from app.mcp import provider_bluecross, provider_nhdc, provider_medinsight
 from app.seed import seed_database
 from app.services.autonomy_agent import run_autonomy_cycle
@@ -48,6 +48,7 @@ app.include_router(providers.router)
 app.include_router(consumers.router)
 app.include_router(mcp_proxy.router)
 app.include_router(autonomy.router)
+app.include_router(onboarding.router)
 
 # Register dedicated mock provider MCP servers
 app.include_router(provider_bluecross.router)

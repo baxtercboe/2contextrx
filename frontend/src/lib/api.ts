@@ -42,6 +42,21 @@ export const mcpInvoke = (data: MCPInvokeRequest) =>
     body: JSON.stringify(data),
   });
 
+// Onboarding APIs
+export const quickRegisterProvider = () =>
+  fetchAPI<Provider>("/onboarding/quick-provider", { method: "POST" });
+export const quickRegisterConsumer = () =>
+  fetchAPI<Consumer>("/onboarding/quick-consumer", { method: "POST" });
+
+// Provider extras
+export const registerProvider = (data: ProviderCreateRequest) =>
+  fetchAPI<Provider>("/providers/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const getEarningsHistory = (id: number) =>
+  fetchAPI<EarningsHistory>(`/providers/${id}/earnings-history`);
+
 // Autonomy APIs
 export const runAutonomyCycle = () =>
   fetchAPI<{ cycle_actions: AutonomyAction[]; action_count: number }>("/autonomy/run-cycle", {
@@ -199,6 +214,28 @@ export interface DashboardMetrics {
   provider_payouts: number;
   avg_latency_ms: number;
   uptime_percent: number;
+}
+
+export interface ProviderCreateRequest {
+  name: string;
+  organization: string;
+  mcp_endpoint: string;
+  data_domains: string[];
+}
+
+export interface EarningsHistory {
+  provider_id: number;
+  total_earnings: number;
+  transaction_count: number;
+  data: EarningsDataPoint[];
+}
+
+export interface EarningsDataPoint {
+  index: number;
+  earning: number;
+  cumulative: number;
+  tool: string;
+  timestamp: string;
 }
 
 // WebSocket meter event types
