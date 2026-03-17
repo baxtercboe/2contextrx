@@ -1,0 +1,170 @@
+import Link from "next/link";
+import {
+  Shield,
+  Zap,
+  Activity,
+  Database,
+  ArrowRight,
+  Lock,
+  Globe,
+  BarChart3,
+  Bot,
+} from "lucide-react";
+
+export default function LandingPage() {
+  return (
+    <div className="relative">
+      {/* Hero */}
+      <section className="relative overflow-hidden px-6 py-24 lg:py-32">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-brand-600/10 blur-[120px]" />
+          <div className="absolute right-0 top-1/3 h-[400px] w-[400px] rounded-full bg-purple-600/10 blur-[100px]" />
+        </div>
+
+        <div className="mx-auto max-w-5xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-4 py-1.5 text-sm text-brand-300">
+            <Bot className="h-4 w-4" />
+            World&apos;s First Fully Autonomous Healthcare Context Marketplace
+          </div>
+
+          <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight lg:text-7xl">
+            <span className="gradient-text">Privacy-Preserved</span>
+            <br />
+            Healthcare Context
+            <br />
+            <span className="text-gray-400">as a Service</span>
+          </h1>
+
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 leading-relaxed">
+            ContextRx connects healthcare payers and hospitals with AI applications
+            through standardized MCP servers. Aggregated insights flow freely —
+            <strong className="text-gray-200"> raw PHI never leaves provider environments</strong>.
+          </p>
+
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/provider" className="btn-primary text-base">
+              <Database className="h-5 w-5" />
+              Provider Portal
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/consumer" className="btn-secondary text-base">
+              <Zap className="h-5 w-5" />
+              Consumer Portal
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="border-t border-white/[0.04] px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mb-4 text-center text-3xl font-bold">How ContextRx Works</h2>
+          <p className="mx-auto mb-16 max-w-2xl text-center text-gray-400">
+            A two-sided marketplace powered by Model Context Protocol (MCP)
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: Database,
+                title: "Providers Expose Context",
+                desc: "Healthcare payers register MCP servers that expose pre-aggregated, k-anonymized data. No raw PHI ever leaves their environment.",
+                color: "from-blue-500 to-cyan-500",
+              },
+              {
+                icon: Globe,
+                title: "Central MCP Proxy Routes",
+                desc: "ContextRx proxies all requests, handling authentication, metering, and billing. Every tool call is tracked and priced transparently.",
+                color: "from-brand-500 to-purple-500",
+              },
+              {
+                icon: Zap,
+                title: "AI Apps Consume Context",
+                desc: "Consumer applications query aggregated healthcare insights via standard MCP tool calls. Pay only for what you use.",
+                color: "from-purple-500 to-pink-500",
+              },
+            ].map(({ icon: Icon, title, desc, color }) => (
+              <div key={title} className="glass-card p-8">
+                <div
+                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}
+                >
+                  <Icon className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="mb-3 text-xl font-semibold">{title}</h3>
+                <p className="text-sm leading-relaxed text-gray-400">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="border-t border-white/[0.04] px-6 py-20">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-4">
+          {[
+            { label: "Revenue Split", value: "70/30", sub: "Provider / Platform" },
+            { label: "PHI Exposure", value: "Zero", sub: "Pre-aggregated only" },
+            { label: "Billing Model", value: "Per Call", sub: "Usage-based metering" },
+            { label: "Autonomy", value: "Full", sub: "AI-managed operations" },
+          ].map(({ label, value, sub }) => (
+            <div key={label} className="stat-card text-center">
+              <p className="mb-1 text-3xl font-bold gradient-text">{value}</p>
+              <p className="text-sm font-semibold text-gray-200">{label}</p>
+              <p className="mt-1 text-xs text-gray-500">{sub}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Key Features */}
+      <section className="border-t border-white/[0.04] px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mb-12 text-center text-3xl font-bold">Platform Capabilities</h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: Lock, label: "Privacy First", desc: "K-anonymized, aggregated data only" },
+              { icon: BarChart3, label: "Real-time Metering", desc: "WebSocket-powered live billing" },
+              { icon: Activity, label: "Performance Bonuses", desc: "Uptime, quality, volume rewards" },
+              { icon: Bot, label: "Autonomy Agent", desc: "Self-managing marketplace ops" },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="glass-card p-6 text-center">
+                <Icon className="mx-auto mb-3 h-8 w-8 text-brand-400" />
+                <p className="font-semibold">{label}</p>
+                <p className="mt-1 text-xs text-gray-500">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="border-t border-white/[0.04] px-6 py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <Shield className="mx-auto mb-6 h-12 w-12 text-brand-400" />
+          <h2 className="mb-4 text-3xl font-bold">Ready to Explore?</h2>
+          <p className="mb-8 text-gray-400">
+            Dive into the Provider Portal to see earnings and performance, or visit the
+            Consumer Portal to run live queries against aggregated healthcare context.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/autonomy" className="btn-primary">
+              <Bot className="h-5 w-5" />
+              Watch Autonomy Agent
+            </Link>
+            <Link href="/consumer" className="btn-secondary">
+              Run a Query
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/[0.04] px-6 py-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs text-gray-600">
+          <span>ContextRx v0.1.0 — Privacy-Preserved Healthcare Context Marketplace</span>
+          <span>No raw PHI is ever stored, transmitted, or returned by this platform.</span>
+        </div>
+      </footer>
+    </div>
+  );
+}
