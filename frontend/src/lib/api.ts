@@ -59,11 +59,12 @@ export const getEarningsHistory = (id: number) =>
 
 // Autonomy APIs
 export const runAutonomyCycle = () =>
-  fetchAPI<{ cycle_actions: AutonomyAction[]; action_count: number }>("/autonomy/run-cycle", {
-    method: "POST",
-  });
-export const getAutonomyLogs = () => fetchAPI<AutonomyLog[]>("/autonomy/logs");
+  fetchAPI<AgentCycleResult>("/autonomy/run-cycle", { method: "POST" });
+export const getAutonomyLogs = (limit?: number) =>
+  fetchAPI<AutonomyLog[]>(`/autonomy/logs${limit ? `?limit=${limit}` : ""}`);
 export const getDashboardMetrics = () => fetchAPI<DashboardMetrics>("/autonomy/dashboard");
+export const getAgentTools = () => fetchAPI<AgentToolDef[]>("/autonomy/tools");
+export const getTakeRate = () => fetchAPI<TakeRateInfo>("/autonomy/take-rate");
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -189,6 +190,33 @@ export interface PayoutSimulation {
   platform_fee: number;
 }
 
+// ─── Autonomy Agent Types ────────────────────────────────────────────────────
+
+export interface AgentThought {
+  step: number;
+  thought: string;
+  tool: string | null;
+  tool_input: Record<string, unknown>;
+  observation: string;
+  action_taken: string;
+  impact: string;
+  timestamp: string;
+}
+
+export interface AgentCycleResult {
+  cycle_number: number;
+  thoughts: AgentThought[];
+  actions_taken: number;
+  total_steps: number;
+  platform_take_rate: number;
+  summary: string;
+  started_at: string;
+  completed_at: string;
+  // Legacy compat
+  cycle_actions: AutonomyAction[];
+  action_count: number;
+}
+
 export interface AutonomyAction {
   type: string;
   description: string;
@@ -207,6 +235,7 @@ export interface AutonomyLog {
 
 export interface DashboardMetrics {
   total_providers: number;
+  active_providers: number;
   total_consumers: number;
   total_queries: number;
   total_revenue: number;
@@ -214,6 +243,19 @@ export interface DashboardMetrics {
   provider_payouts: number;
   avg_latency_ms: number;
   uptime_percent: number;
+  platform_take_rate: number;
+}
+
+export interface AgentToolDef {
+  name: string;
+  description: string;
+  parameters: string[];
+}
+
+export interface TakeRateInfo {
+  take_rate: number;
+  take_rate_pct: number;
+  provider_share_pct: number;
 }
 
 export interface ProviderCreateRequest {

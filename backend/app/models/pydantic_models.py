@@ -167,6 +167,7 @@ class AutonomyLogResponse(BaseModel):
 
 class DashboardMetrics(BaseModel):
     total_providers: int
+    active_providers: int = 0
     total_consumers: int
     total_queries: int
     total_revenue: float
@@ -174,6 +175,7 @@ class DashboardMetrics(BaseModel):
     provider_payouts: float
     avg_latency_ms: float
     uptime_percent: float
+    platform_take_rate: float = 30.0  # percentage
 
 
 class PayoutSimulation(BaseModel):
