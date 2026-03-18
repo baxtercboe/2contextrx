@@ -20,6 +20,7 @@ import {
   Loader2,
   BarChart3,
   Tag,
+  Download,
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { useWebSocketMeter } from "@/lib/useWebSocketMeter";
@@ -299,10 +300,20 @@ export default function ProviderPortal() {
                     <p className="font-mono text-sm text-brand-300">{selectedProvider.mcp_endpoint}</p>
                   </div>
                 </div>
-                <button onClick={copyApiKey} className="btn-secondary py-2 px-3 text-xs">
-                  {copiedKey ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copiedKey ? "Copied!" : "Copy API Key"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`/api/providers/${selectedProvider.id}/export-csv`}
+                    download
+                    className="btn-secondary py-2 px-3 text-xs"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download Payout Report
+                  </a>
+                  <button onClick={copyApiKey} className="btn-secondary py-2 px-3 text-xs">
+                    {copiedKey ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedKey ? "Copied!" : "Copy API Key"}
+                  </button>
+                </div>
               </CardContent>
             </Card>
 

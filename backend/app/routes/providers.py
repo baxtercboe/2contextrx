@@ -1,4 +1,8 @@
+import csv
+import io
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 import json
 import secrets
@@ -91,3 +95,61 @@ def get_earnings_history(provider_id: int, db: Session = Depends(get_db)):
 @router.post("/simulate-payout", response_model=PayoutSimulation)
 def simulate_provider_payout(req: PayoutSimulationRequest):
     return simulate_payout(req)
+
+
+@router.get("/{provider_id}/export-csv")
+def export_payout_csv(provider_id: int, db: Session = Depends(get_db)):
+    """Download a CSV payout report for a provider's transaction history."""
+    provider = db.query(Provider).filter(Provider.id == provider_id).first()
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+
+    txns = (
+        db.query(Transaction)
+        .filter(Transaction.provider_id == provider_id)
+        .order_by(Transaction.created_at.asc())
+        .all()
+    )
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Transaction ID", "Date", "Tool Name", "Consumer ID",
+        "Base Cost", "Complexity Mult", "Volume Mult", "Total Cost",
+        "Provider Base (70%)", "Uptime Bonus", "Quality Bonus",
+        "Total Provider Payout", "Platform Fee", "Latency (ms)", "Status",
+    ])
+
+    cumulative = 0.0
+    for txn in txns:
+        cumulative += txn.provider_payout
+        writer.writerow([
+            txn.id,
+            txn.created_at.isoformat() if txn.created_at else "",
+            txn.tool_name,
+            txn.consumer_id,
+            f"{txn.base_cost:.4f}",
+            f"{txn.complexity_multiplier:.2f}",
+            f"{txn.volume_multiplier:.2f}",
+            f"{txn.cost:.4f}",
+            f"{txn.provider_base_payout:.4f}",
+            f"{txn.uptime_bonus:.4f}",
+            f"{txn.quality_bonus:.4f}",
+            f"{txn.provider_payout:.4f}",
+            f"{txn.platform_fee:.4f}",
+            f"{txn.latency_ms:.1f}",
+            txn.status,
+        ])
+
+    # Summary row
+    writer.writerow([])
+    writer.writerow(["TOTAL", "", "", "", "", "", "", "", "", "", "", f"{cumulative:.4f}", "", "", ""])
+
+    output.seek(0)
+    org_slug = provider.organization.lower().replace(" ", "_")
+    filename = f"contextrx_payout_{org_slug}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )

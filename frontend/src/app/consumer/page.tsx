@@ -45,6 +45,14 @@ const EXAMPLE_QUERIES: Record<string, { params: Record<string, unknown>; label: 
   get_drug_utilization_stats: { params: { therapeutic_class: "antidiabetics", region: "midwest" }, label: "Antidiabetic Utilization" },
   get_readmission_risk_scores: { params: { condition: "chf", facility_type: "community_hospital" }, label: "CHF Readmission Risk" },
   get_telehealth_adoption_metrics: { params: { specialty: "behavioral_health", demographic: "rural" }, label: "Rural Telehealth" },
+  get_pharmacy_cost_trends: { params: { drug_class: "specialty", plan_type: "commercial" }, label: "Specialty Drug Costs" },
+  get_er_utilization_patterns: { params: { region: "southeast", acuity: "non_urgent" }, label: "SE Avoidable ER" },
+  get_sdoh_risk_indicators: { params: { indicator: "food_insecurity", zip_cluster: "30301" }, label: "Food Insecurity Risk" },
+  get_ma_star_ratings_trends: { params: { measure_category: "outcomes", year: 2025 }, label: "MA Star Outcomes" },
+  get_chronic_care_gaps: { params: { condition: "diabetes", gap_type: "medication_adherence" }, label: "Diabetes Care Gaps" },
+  get_integrated_care_outcomes: { params: { program: "heart_failure", metric: "readmission_rate" }, label: "HF Readmissions" },
+  get_network_adequacy_scores: { params: { specialty: "behavioral_health", geography: "rural" }, label: "Rural BH Access" },
+  get_claims_variance_analysis: { params: { service_category: "inpatient", comparison: "vs_benchmark" }, label: "IP Cost Variance" },
 };
 
 export default function ConsumerPortal() {

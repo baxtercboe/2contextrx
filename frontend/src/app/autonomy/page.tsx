@@ -29,6 +29,7 @@ import {
   Circle,
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/utils";
+import { PrivacyBadgeRow } from "@/components/ui/PrivacyBanner";
 import type {
   AutonomyLog,
   DashboardMetrics,
@@ -217,6 +218,8 @@ export default function AutonomyDashboard() {
           </button>
         </div>
       </div>
+
+      <div className="mb-6"><PrivacyBadgeRow /></div>
 
       {/* Platform Stats Row */}
       {metrics && (

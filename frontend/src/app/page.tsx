@@ -246,13 +246,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/[0.04] px-6 py-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs text-gray-600">
-          <span>ContextRx v0.2.0 — Privacy-Preserved Healthcare Context Marketplace</span>
-          <span>No raw PHI is ever stored, transmitted, or returned by this platform.</span>
-        </div>
-      </footer>
     </div>
   );
 }
